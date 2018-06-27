@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using CloxSharp.Expressions;
+using CloxSharp.Visitors;
 
 namespace CloxSharp {
     public class Lox {
@@ -7,6 +9,18 @@ namespace CloxSharp {
         private static bool _hadError = false;
 
         public static void Main(string[] args) {
+            var expression = new BinaryExpr(
+                new UnaryExpr(
+                    new Token(TokenType.Minus, "-", null, 1),
+                    new LiteralExpr(123)),
+                new Token(TokenType.Star, "*", null, 1),
+                new GroupingExpr(
+                    new LiteralExpr(45.67)));
+            
+            Console.WriteLine(new AstPrinter().Print(expression));
+        }
+
+        public static void MainOld(string[] args) {
             switch (args.Length) {
                 case 0:
                     RunPrompt();

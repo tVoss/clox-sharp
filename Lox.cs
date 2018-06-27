@@ -2,7 +2,7 @@
 using System.IO;
 
 namespace CloxSharp {
-    public class Program {
+    public class Lox {
         
         private static bool _hadError = false;
 
@@ -46,7 +46,7 @@ namespace CloxSharp {
             }
         }
 
-        private static void Error(int line, string message) {
+        public static void Error(int line, string message) {
             Report(line, string.Empty, message);
         }
 

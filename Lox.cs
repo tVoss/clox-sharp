@@ -9,18 +9,6 @@ namespace CloxSharp {
         private static bool _hadError = false;
 
         public static void Main(string[] args) {
-            var expression = new BinaryExpr(
-                new UnaryExpr(
-                    new Token(TokenType.Minus, "-", null, 1),
-                    new LiteralExpr(123)),
-                new Token(TokenType.Star, "*", null, 1),
-                new GroupingExpr(
-                    new LiteralExpr(45.67)));
-            
-            Console.WriteLine(new AstPrinter().Print(expression));
-        }
-
-        public static void MainOld(string[] args) {
             switch (args.Length) {
                 case 0:
                     RunPrompt();
@@ -55,13 +43,26 @@ namespace CloxSharp {
             var scanner = new Scanner(source);
             var tokens = scanner.ScanTokens();
 
-            foreach (var token in tokens) {
-                Console.WriteLine(token);
+            var parser = new Parser(tokens);
+            var expr = parser.Parse();
+
+            if (_hadError) {
+                return;
             }
+
+            Console.WriteLine(new AstPrinter().Print(expr));
         }
 
         public static void Error(int line, string message) {
             Report(line, string.Empty, message);
+        }
+
+        public static void Error(Token token, string message) {
+            if (token.Type == TokenType.Eof) {
+                Report(token.Line, " at end", message);
+            } else {
+                Report(token.Line, " at '" + token.Lexeme + "'", message);
+            }
         }
 
         private static void Report(int line, string where, string message) {

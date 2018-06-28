@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using CloxSharp.Exceptions;
 using CloxSharp.Expressions;
 
 namespace CloxSharp{
@@ -9,6 +11,14 @@ namespace CloxSharp{
         public Parser(List<Token> tokens) {
             _tokens = tokens;
             _current = 0;
+        }
+
+        public Expr Parse() {
+            try {
+                return Expression();
+            } catch (ParseException e) {
+                return null;
+            }
         }
 
         private Expr Expression() {
@@ -84,16 +94,47 @@ namespace CloxSharp{
 
             if (Match(TokenType.LeftParen)) {
                 var expr = Expression();
-                Consume(TokenType.RightParen, "Exprect ')' after expression");
+                Consume(TokenType.RightParen, "Expect ')' after expression");
                 return new GroupingExpr(expr);
             }
 
             // Err?
-            return null;
+            throw Error(Peek(), "Expect expression");
         }
 
-        private void Consume(TokenType type, string message) {
+        private Token Consume(TokenType type, string message) {
+            if (Check(type)) {
+                return Advance();
+            }
 
+            throw Error(Peek(), message);
+        }
+
+        private ParseException Error(Token token, string message) {
+            Lox.Error(token, message);
+            return new ParseException();
+        }
+
+        private void Synchronize() {
+            Advance();
+
+            while (!IsAtEnd()) {
+                if (Previous().Type == TokenType.Semicolon) return;
+
+                switch (Peek().Type) {
+                    case TokenType.Class:
+                    case TokenType.Fun:
+                    case TokenType.Var:
+                    case TokenType.For:
+                    case TokenType.If:
+                    case TokenType.While:
+                    case TokenType.Print:
+                    case TokenType.Return:
+                        return;
+                }
+
+                Advance();
+            }
         }
 
         private bool Match(params TokenType[] types) {

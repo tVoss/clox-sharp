@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/clox-sharp.csproj"
+                "${workspaceFolder}/src/clox-sharp.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

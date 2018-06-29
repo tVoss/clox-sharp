@@ -1,7 +1,12 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace CloxSharp.Exceptions {
-    public class ParseException : Exception {
+    
+    [System.Serializable]
+    public class ParseException : System.Exception {
+        public ParseException() {
 
+        }
     }
 }

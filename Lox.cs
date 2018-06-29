@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CloxSharp.Exceptions;
 using CloxSharp.Expressions;
 using CloxSharp.Visitors;
 
@@ -7,6 +8,8 @@ namespace CloxSharp {
     public class Lox {
         
         private static bool _hadError = false;
+        private static bool _hadRuntimeError = false;
+        private static readonly Interpreter _interpreter = new Interpreter();
 
         public static void Main(string[] args) {
             switch (args.Length) {
@@ -35,7 +38,10 @@ namespace CloxSharp {
             Run(source);
 
             if (_hadError) {
-                Environment.Exit(-1);
+                Environment.Exit(65);
+            }
+            if (_hadRuntimeError) {
+                Environment.Exit(70);
             }
         }
 
@@ -50,7 +56,7 @@ namespace CloxSharp {
                 return;
             }
 
-            Console.WriteLine(new AstPrinter().Print(expr));
+            _interpreter.Interpret(expr);
         }
 
         public static void Error(int line, string message) {
@@ -63,6 +69,11 @@ namespace CloxSharp {
             } else {
                 Report(token.Line, " at '" + token.Lexeme + "'", message);
             }
+        }
+
+        public static void RuntimeError(RuntimeException e) {
+            Console.Error.WriteLine($"{e.Message}\n[line {e.Token.Line}]");
+            _hadRuntimeError = true;
         }
 
         private static void Report(int line, string where, string message) {

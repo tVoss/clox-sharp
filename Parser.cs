@@ -16,7 +16,7 @@ namespace CloxSharp{
         public Expr Parse() {
             try {
                 return Expression();
-            } catch (ParseException e) {
+            } catch (ParseException) {
                 return null;
             }
         }
@@ -94,12 +94,12 @@ namespace CloxSharp{
 
             if (Match(TokenType.LeftParen)) {
                 var expr = Expression();
-                Consume(TokenType.RightParen, "Expect ')' after expression");
+                Consume(TokenType.RightParen, "Expected ')' after expression");
                 return new GroupingExpr(expr);
             }
 
             // Err?
-            throw Error(Peek(), "Expect expression");
+            throw Error(Peek(), "Expected expression");
         }
 
         private Token Consume(TokenType type, string message) {
